@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<!-- ==========================================================
+     CineLog - Movie Discovery, Rating & Personal Diary
+     index.html = the STRUCTURE of the website (HTML5).
+     style  -> css/style.css      behaviour -> js/script.js
+     data   -> js/movies.js
+
+     The page has two big parts:
+       1. #login-page  (login + register)
+       2. #app         (sidebar + all sections, shown after login)
+     ========================================================== -->
+<html lang="en">
+<head>
+  <!-- META tags: charset, mobile screen size and SEO (title + description) -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CineLog is a movie website with user and admin login. Search 100+ movies, keep a watchlist, rate films and write your own movie diary.">
+  <meta name="keywords" content="movies, watchlist, movie diary, ratings, reviews, login">
+  <meta name="author" content="CSC 326 Student Project">
+  <title>CineLog - Movie Discovery, Rating and Diary</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- ====================================================
+       PART 1 : LOGIN / REGISTER PAGE
+       ==================================================== -->
+  <main id="login-page">
+    <div class="login-box">
+
+      <!-- SVG graphic: film-reel logo drawn with shapes -->
+      <svg class="login-logo" width="56" height="56" viewBox="0 0 40 40" role="img" aria-label="CineLog film reel logo">
+        <circle cx="20" cy="20" r="18" fill="#e50914"/>
+        <circle cx="20" cy="20" r="4" fill="#fff"/>
+        <circle cx="20" cy="9"  r="3.5" fill="#fff"/>
+        <circle cx="20" cy="31" r="3.5" fill="#fff"/>
+        <circle cx="9"  cy="20" r="3.5" fill="#fff"/>
+        <circle cx="31" cy="20" r="3.5" fill="#fff"/>
+      </svg>
+      <h1>Cine<span class="red">Log</span></h1>
+      <p class="subtitle">Movie discovery, rating and diary</p>
+
+      <!-- ----- LOGIN FORM ----- -->
+      <form id="login-form">
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="Enter email" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter password" required autocomplete="current-password">
+        </div>
+        <div class="field">
+          <label for="login-role">Login as</label>
+          <select id="login-role">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <p class="error-text" id="login-error" role="alert"></p>
+        <button type="submit" class="button full-width">Login</button>
+        <p class="switch-text">New here? <a href="#" id="show-register">Create an account</a></p>
+
+        <div class="demo-box">
+          <strong>Demo logins</strong><br>
+          User: user@gmail.com / 1234<br>
+          Admin: admin@gmail.com / admin123
+        </div>
+      </form>
+
+      <!-- ----- REGISTER FORM (hidden at start) ----- -->
+      <form id="register-form" hidden>
+        <div class="field">
+          <label for="reg-name">Full name</label>
+          <input type="text" id="reg-name" placeholder="Your name" required minlength="2" maxlength="30">
+        </div>
+        <div class="field">
+          <label for="reg-email">Email</label>
+          <input type="email" id="reg-email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="reg-password">Password (at least 4 characters)</label>
+          <input type="password" id="reg-password" placeholder="Choose a password" required minlength="4" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="reg-confirm">Confirm password</label>
+          <input type="password" id="reg-confirm" placeholder="Type the password again" required autocomplete="new-password">
+        </div>
+        <p class="error-text" id="register-error" role="alert"></p>
+        <button type="submit" class="button full-width">Create account</button>
+        <p class="switch-text">Already have an account? <a href="#" id="show-login">Login</a></p>
+      </form>
+
+    </div>
+  </main>
+
+
+  <!-- ====================================================
+       PART 2 : THE APPLICATION (hidden until login)
+       ==================================================== -->
+  <div id="app" hidden>
+
+    <!-- Accessibility: lets keyboard users jump straight to the content -->
+    <a class="skip-link" href="#content">Skip to main content</a>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+      <div class="logo">
+        <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="20" r="18" fill="#e50914"/>
+          <circle cx="20" cy="20" r="4" fill="#fff"/>
+          <circle cx="20" cy="9"  r="3.5" fill="#fff"/>
+          <circle cx="20" cy="31" r="3.5" fill="#fff"/>
+          <circle cx="9"  cy="20" r="3.5" fill="#fff"/>
+          <circle cx="31" cy="20" r="3.5" fill="#fff"/>
+        </svg>
+        <span>Cine<strong>Log</strong></span>
+      </div>
+
+      <!-- class "user-only" / "admin-only": JavaScript hides the buttons that
+           the logged-in person is not allowed to see -->
+      <nav aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><button type="button" class="nav-btn active" id="nav-dashboard" onclick="showSection('dashboard')">Dashboard</button></li>
+          <li><button type="button" class="nav-btn" id="nav-movies"    onclick="showSection('movies')">Movies</button></li>
+          <li class="user-only"><button type="button" class="nav-btn" id="nav-watchlist" onclick="showSection('watchlist')">Watchlist <span class="count" id="watchlist-count">0</span></button></li>
+          <li class="user-only"><button type="button" class="nav-btn" id="nav-diary"     onclick="showSection('diary')">My Diary <span class="count" id="diary-count">0</span></button></li>
+          <li class="admin-only"><button type="button" class="nav-btn" id="nav-users"    onclick="showSection('users')">Users</button></li>
+          <li class="admin-only"><button type="button" class="nav-btn" id="nav-reports"  onclick="showSection('reports')">Reports</button></li>
+          <li><button type="button" class="nav-btn" id="nav-profile" onclick="showSection('profile')">Profile</button></li>
+          <li><button type="button" class="nav-btn" id="nav-about"   onclick="showSection('about')">About</button></li>
+        </ul>
+      </nav>
+
+      <button type="button" class="logout-button" id="logout-button">Logout</button>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="main-area">
+
+      <header class="topbar">
+        <h1 id="page-title">Dashboard</h1>
+        <div class="topbar-right">
+          <button type="button" id="theme-button" class="theme-button" aria-label="Switch between dark and light theme">Light mode</button>
+          <span class="user-info">&#128100; <span id="current-user"></span> <span class="role-badge" id="role-badge"></span></span>
+        </div>
+      </header>
+
+      <main id="content">
+
+        <!-- ---------- SECTION : DASHBOARD ---------- -->
+        <section class="section active" id="section-dashboard">
+          <h2 id="welcome-text">Welcome</h2>
+
+          <div class="stat-row">
+            <div class="stat"><span class="stat-number" id="dash-1">0</span><span class="stat-name" id="dash-1-name">Movies</span></div>
+            <div class="stat"><span class="stat-number" id="dash-2">0</span><span class="stat-name" id="dash-2-name">Users</span></div>
+            <div class="stat"><span class="stat-number" id="dash-3">0</span><span class="stat-name" id="dash-3-name">Diary entries</span></div>
+            <div class="stat"><span class="stat-number" id="dash-4">0</span><span class="stat-name" id="dash-4-name">Average rating</span></div>
+          </div>
+
+          <section class="block" aria-labelledby="genre-heading">
+            <h2 id="genre-heading">Pick a genre</h2>
+            <!-- The buttons below are created by JavaScript from the genres array -->
+            <div class="chips" id="genre-chips"></div>
+          </section>
+
+          <section class="block" aria-labelledby="top-heading">
+            <div class="block-head">
+              <h2 id="top-heading">Top rated movies</h2>
+              <button type="button" class="link-button" onclick="showSection('movies')">See all movies &rarr;</button>
+            </div>
+            <div class="movie-grid" id="top-grid"></div>
+          </section>
+
+          <!-- Only the normal user sees this table -->
+          <section class="block user-only" aria-labelledby="recent-heading">
+            <h2 id="recent-heading">My recent diary entries</h2>
+            <div class="table-wrap">
+              <table>
+                <caption>Your last 5 entries</caption>
+                <thead><tr><th scope="col">Film</th><th scope="col">Date</th><th scope="col">Rating</th></tr></thead>
+                <tbody id="recent-body"></tbody>
+              </table>
+            </div>
+            <p class="empty-box" id="recent-empty">Nothing logged yet.</p>
+          </section>
+        </section>
+
+        <!-- ---------- SECTION : MOVIES (search + filter + sort) ---------- -->
+        <section class="section" id="section-movies">
+          <h2>All movies</h2>
+
+          <!-- FORM CONTROLS: search box, drop-down lists and buttons -->
+          <form class="filter-bar" id="filter-form" role="search" onsubmit="return false">
+            <div class="field">
+              <label for="search-input">Search</label>
+              <input type="search" id="search-input" placeholder="Title or director..." autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="genre-select">Genre</label>
+              <select id="genre-select"><option value="All">All genres</option></select>
+            </div>
+            <div class="field">
+              <label for="language-select">Language</label>
+              <select id="language-select"><option value="All">All languages</option></select>
+            </div>
+            <div class="field">
+              <label for="sort-select">Sort by</label>
+              <select id="sort-select">
+                <option value="rating">Highest rated</option>
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="title">Title A to Z</option>
+              </select>
+            </div>
+            <button type="button" class="button button-outline" id="reset-button">Reset</button>
+            <button type="button" class="button admin-only" id="add-movie-button">+ Add movie</button>
+          </form>
+
+          <p class="result-text" id="result-text" aria-live="polite"></p>
+          <div class="movie-grid" id="browse-grid"></div>
+          <p class="empty-box" id="browse-empty" hidden>No movies found. Try another search.</p>
+          <div class="center"><button type="button" class="button button-outline" id="more-button" hidden>Show more movies</button></div>
+        </section>
+
+        <!-- ---------- SECTION : WATCHLIST (user) ---------- -->
+        <section class="section" id="section-watchlist">
+          <h2>My watchlist</h2>
+          <p class="subtitle">Movies you want to watch later. They are saved in your browser.</p>
+          <div class="movie-grid" id="watchlist-grid"></div>
+          <p class="empty-box" id="watchlist-empty">Your watchlist is empty. Click the <strong>+</strong> button on any movie to add it.</p>
+        </section>
+
+        <!-- ---------- SECTION : DIARY (user) ---------- -->
+        <section class="section" id="section-diary">
+          <h2>My movie diary</h2>
+          <p class="subtitle">Everything you have watched, rated and reviewed.</p>
+
+          <div class="stat-row">
+            <div class="stat"><span class="stat-number" id="stat-films">0</span><span class="stat-name">Films watched</span></div>
+            <div class="stat"><span class="stat-number" id="stat-average">-</span><span class="stat-name">Average rating</span></div>
+            <div class="stat"><span class="stat-number" id="stat-hours">0</span><span class="stat-name">Hours watched</span></div>
+            <div class="stat"><span class="stat-number" id="stat-genre">-</span><span class="stat-name">Favourite genre</span></div>
+          </div>
+
+          <!-- TABLE: diary entries as rows and columns -->
+          <div class="table-wrap" id="diary-table-wrap">
+            <table>
+              <caption>Your diary entries (newest first)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Film</th>
+                  <th scope="col">Date watched</th>
+                  <th scope="col">Your rating</th>
+                  <th scope="col">Review</th>
+                  <th scope="col">Remove</th>
+                </tr>
+              </thead>
+              <tbody id="diary-body"></tbody>
+            </table>
+          </div>
+          <p class="empty-box" id="diary-empty">No diary entries yet. Open a movie and press <strong>Log this film</strong>.</p>
+
+          <section class="block" aria-labelledby="genre-stat-heading" id="genre-stats-box" hidden>
+            <h2 id="genre-stat-heading">Genres you watch most</h2>
+            <div id="genre-bars"></div>
+          </section>
+        </section>
+
+        <!-- ---------- SECTION : USERS (admin) ---------- -->
+        <section class="section" id="section-users">
+          <h2>User management</h2>
+          <div class="table-wrap">
+            <table>
+              <caption>All registered accounts</caption>
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Watchlist</th>
+                  <th scope="col">Diary</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody id="users-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ---------- SECTION : REPORTS (admin) ---------- -->
+        <section class="section" id="section-reports">
+          <h2>Reports</h2>
+          <div class="stat-row">
+            <div class="stat"><span class="stat-number" id="rep-movies">0</span><span class="stat-name">Movies in library</span></div>
+            <div class="stat"><span class="stat-number" id="rep-users">0</span><span class="stat-name">Registered users</span></div>
+            <div class="stat"><span class="stat-number" id="rep-saves">0</span><span class="stat-name">Total watchlist saves</span></div>
+            <div class="stat"><span class="stat-number" id="rep-entries">0</span><span class="stat-name">Total diary entries</span></div>
+          </div>
+          <p>Most watchlisted movie: <strong id="rep-top">-</strong></p>
+
+          <section class="block" aria-labelledby="rep-genre-heading">
+            <h2 id="rep-genre-heading">Movies per genre</h2>
+            <div id="rep-bars"></div>
+          </section>
+
+          <button type="button" class="button button-outline" id="reset-data-button">Reset all data to default</button>
+        </section>
+
+        <!-- ---------- SECTION : PROFILE ---------- -->
+        <section class="section" id="section-profile">
+          <h2>My profile</h2>
+          <article class="card-box">
+            <dl class="info-list">
+              <dt>Name</dt>  <dd id="profile-name"></dd>
+              <dt>Email</dt> <dd id="profile-email"></dd>
+              <dt>Role</dt>  <dd id="profile-role"></dd>
+              <dt>Watchlist</dt><dd id="profile-watchlist"></dd>
+              <dt>Diary entries</dt><dd id="profile-diary"></dd>
+            </dl>
+          </article>
+        </section>
+
+        <!-- ---------- SECTION : ABOUT (lists, video, audio, iframe, form) ---------- -->
+        <section class="section" id="section-about">
+          <h2>About CineLog</h2>
+          <p class="subtitle">A student project made with HTML, CSS and JavaScript.</p>
+
+          <div class="about-grid">
+            <article class="card-box">
+              <h3>What can you do here?</h3>
+              <!-- LISTS: ordered and unordered -->
+              <ol>
+                <li>Login as a <em>User</em> or as an <em>Admin</em>.</li>
+                <li>Search and filter 100+ movies.</li>
+                <li>Save movies in your <em>Watchlist</em>.</li>
+                <li>Rate movies and write reviews in your <em>Diary</em>.</li>
+                <li>Admin can add or delete movies and manage users.</li>
+              </ol>
+              <h3>Technologies used</h3>
+              <ul>
+                <li>HTML5 - structure of the pages</li>
+                <li>CSS3 - colours, layout and animations</li>
+                <li>JavaScript - all the interactive features</li>
+                <li>Local Storage - saves data in the browser</li>
+              </ul>
+            </article>
+
+            <!-- MULTIMEDIA: video + audio elements -->
+            <article class="card-box">
+              <h3>Intro video</h3>
+              <video controls preload="metadata" width="320">
+                <source src="media/intro.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+              <h3>Movie night reminder</h3>
+              <audio controls preload="none">
+                <source src="media/chime.mp3" type="audio/mpeg">
+                Your browser does not support the audio tag.
+              </audio>
+            </article>
+          </div>
+
+          <!-- IFRAME: embeds another website (a map) inside our page -->
+          <section class="block" aria-labelledby="map-heading">
+            <h2 id="map-heading">Find a cinema near you</h2>
+            <iframe title="Map of cinemas" loading="lazy"
+              src="https://www.google.com/maps?q=cinema&amp;output=embed"
+              width="100%" height="280"></iframe>
+          </section>
+
+          <!-- FEEDBACK FORM: different input types + validation -->
+          <section class="block" aria-labelledby="feedback-heading">
+            <h2 id="feedback-heading">Send us feedback</h2>
+            <form class="form-box" id="feedback-form">
+              <div class="field">
+                <label for="fb-name">Your name</label>
+                <input type="text" id="fb-name" name="name" required minlength="2" maxlength="30" placeholder="Your name">
+              </div>
+              <div class="field">
+                <label for="fb-email">Email</label>
+                <input type="email" id="fb-email" name="email" required placeholder="you@example.com">
+              </div>
+              <div class="field">
+                <label for="fb-age">Age</label>
+                <input type="number" id="fb-age" name="age" min="10" max="100" placeholder="10 - 100">
+              </div>
+              <div class="field">
+                <label for="fb-message">Message</label>
+                <textarea id="fb-message" name="message" rows="4" required minlength="10" maxlength="300" placeholder="Write at least 10 characters"></textarea>
+              </div>
+              <div class="field checkbox-field">
+                <input type="checkbox" id="fb-agree" name="agree" required>
+                <label for="fb-agree">I agree to share this feedback</label>
+              </div>
+              <p class="error-text" id="feedback-error" role="alert"></p>
+              <p class="success-text" id="feedback-success" role="status"></p>
+              <button type="submit" class="button">Send feedback</button>
+            </form>
+          </section>
+        </section>
+
+      </main>
+
+      <footer class="site-footer">
+        <p>CineLog &copy; 2026 - CSC 326 Student Project. Ratings are sample data.</p>
+      </footer>
+    </div>
+  </div>
+
+
+  <!-- ================= MOVIE DETAILS POP-UP ================= -->
+  <!-- <dialog> is a built-in HTML pop-up window. JS opens it with showModal() -->
+  <dialog id="details-dialog" aria-labelledby="details-title">
+    <button type="button" class="close-button" id="details-close" aria-label="Close details">&times;</button>
+    <div class="details-layout">
+      <div id="details-poster"></div>
+      <div class="details-info">
+        <h2 id="details-title"></h2>
+        <p id="details-meta" class="muted"></p>
+        <dl id="details-facts" class="info-list"></dl>
+        <div class="button-row user-only">
+          <button type="button" class="button" id="details-watchlist">Add to watchlist</button>
+          <button type="button" class="button button-outline" id="details-log">Log this film</button>
+        </div>
+        <p><a id="details-trailer" href="#" target="_blank" rel="noopener">Search trailer on YouTube</a></p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ================= LOG-A-FILM FORM POP-UP ================= -->
+  <dialog id="log-dialog" aria-labelledby="log-title">
+    <button type="button" class="close-button" id="log-close" aria-label="Close form">&times;</button>
+    <h2 id="log-title">Log this film</h2>
+    <p class="muted" id="log-movie-name"></p>
+
+    <form id="log-form">
+      <div class="field">
+        <label for="log-date">Date watched</label>
+        <input type="date" id="log-date" name="date" required>
+      </div>
+
+      <!-- fieldset + legend groups the radio buttons (good for accessibility) -->
+      <fieldset class="rating-field">
+        <legend>Your rating</legend>
+        <div class="stars">
+          <input type="radio" id="star5" name="rating" value="5" required><label for="star5" title="5 stars">&#9733;</label>
+          <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">&#9733;</label>
+          <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">&#9733;</label>
+          <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">&#9733;</label>
+          <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">&#9733;</label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="log-review">Your review (optional)</label>
+        <textarea id="log-review" name="review" rows="4" maxlength="300" placeholder="What did you think about the movie?"></textarea>
+        <small class="muted"><span id="review-chars">0</span> / 300 characters</small>
+      </div>
+
+      <p class="error-text" id="log-error" role="alert"></p>
+      <button type="submit" class="button">Save to my diary</button>
+    </form>
+  </dialog>
+
+  <!-- ================= ADD MOVIE POP-UP (admin) ================= -->
+  <dialog id="add-dialog" aria-labelledby="add-title">
+    <button type="button" class="close-button" id="add-close" aria-label="Close form">&times;</button>
+    <h2 id="add-title">Add a new movie</h2>
+
+    <form id="add-form">
+      <div class="field">
+        <label for="new-title">Title</label>
+        <input type="text" id="new-title" required maxlength="60" placeholder="Movie title">
+      </div>
+      <div class="field">
+        <label for="new-director">Director</label>
+        <input type="text" id="new-director" required maxlength="40" placeholder="Director name">
+      </div>
+      <div class="two-columns">
+        <div class="field">
+          <label for="new-year">Year</label>
+          <input type="number" id="new-year" required min="1900" max="2030" placeholder="e.g. 2024">
+        </div>
+        <div class="field">
+          <label for="new-duration">Duration (minutes)</label>
+          <input type="number" id="new-duration" required min="30" max="400" placeholder="e.g. 120">
+        </div>
+        <div class="field">
+          <label for="new-genre">Genre</label>
+          <select id="new-genre"></select>
+        </div>
+        <div class="field">
+          <label for="new-language">Language</label>
+          <select id="new-language"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="new-rating">Rating (0 - 10)</label>
+        <input type="number" id="new-rating" required min="0" max="10" step="0.1" placeholder="e.g. 7.5">
+      </div>
+      <p class="error-text" id="add-error" role="alert"></p>
+      <button type="submit" class="button">Add movie</button>
+    </form>
+  </dialog>
+
+  <!-- Small message that appears at the bottom of the screen -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Scripts are loaded at the END so the page is ready first.
+       movies.js must come BEFORE script.js because script.js uses "defaultMovies". -->
+  <script src="js/movies.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
